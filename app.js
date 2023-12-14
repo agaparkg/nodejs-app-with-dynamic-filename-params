@@ -25,7 +25,7 @@ const app = express();
 // port on which your server will listen. It uses the logical OR (||) operator
 // to check if the environment variable PORT is set. If it is set, it uses that
 // value; otherwise, it defaults to 3000.
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Middleware to parse incoming requests with JSON payloads
 // When a request is made with a Content-Type of application/json, this middleware
@@ -79,7 +79,7 @@ app.get("/:file_name/:id", async (req, res) => {
   }
 });
 
-// Endpoint to get all items
+// Endpoint to get all items based on the file_name provided
 app.get("/:file_name", async (req, res) => {
   const { file_name } = req.params;
 
@@ -105,15 +105,16 @@ app.get("/:file_name", async (req, res) => {
 });
 
 // Endpoint to add a new item
-app.post("/products", async (req, res) => {
+app.post("/:file_name", async (req, res) => {
   const newItem = req.body;
+  const file_name = req.params.file_name;
 
   //   Add id to the new item
   newItem.id = uuidv4();
 
   try {
     // Read existing items from the file
-    const data = await readFile("./data/products.json", {
+    const data = await readFile(`./data/${file_name}.json`, {
       encoding: "utf8",
     });
 
@@ -123,7 +124,7 @@ app.post("/products", async (req, res) => {
     items.push(newItem);
 
     // Write the updated items back to the file
-    await writeFile("./data/products.json", JSON.stringify(items));
+    await writeFile(`./data/${file_name}.json`, JSON.stringify(items));
 
     res.status(200).json(newItem);
   } catch (error) {
@@ -132,12 +133,12 @@ app.post("/products", async (req, res) => {
 });
 
 // Endpoint to delete an item by ID
-app.delete("/products/:id", async (req, res) => {
-  const itemId = req.params.id;
+app.delete("/:file_name/:id", async (req, res) => {
+  const { id: itemId, file_name } = req.params;
 
   try {
     // Read existing items from the file
-    const data = await readFile("./data/products.json", {
+    const data = await readFile(`./data/${file_name}.json`, {
       encoding: "utf8",
     });
     let items = JSON.parse(data);
@@ -150,7 +151,7 @@ app.delete("/products/:id", async (req, res) => {
       items.splice(index, 1);
 
       // Write the updated items back to the file
-      await writeFile("./data/products.json", JSON.stringify(items));
+      await writeFile(`./data/${file_name}.json`, JSON.stringify(items));
       res.status(200).json({ message: "Item has been deleted successfully." });
     } else {
       res.status(404).json({ error: "Item not found" });
@@ -161,13 +162,13 @@ app.delete("/products/:id", async (req, res) => {
 });
 
 // Endpoint to update (patch) an item by ID
-app.patch("/products/:id", async (req, res) => {
-  const itemId = req.params.id;
+app.patch("/:file_name/:id", async (req, res) => {
+  const { id: itemId, file_name } = req.params;
   const updatedData = req.body;
 
   try {
     // Read existing items from the file
-    const data = await readFile("./data/products.json", {
+    const data = await readFile(`./data/${file_name}.json`, {
       encoding: "utf8",
     });
     let items = JSON.parse(data);
@@ -180,7 +181,7 @@ app.patch("/products/:id", async (req, res) => {
       items[index] = { ...items[index], ...updatedData };
 
       // Write the updated items back to the file
-      await writeFile("./data/products.json", JSON.stringify(items));
+      await writeFile(`./data/${file_name}.json`, JSON.stringify(items));
       res.json(items[index]);
     } else {
       res.status(404).json({ error: "Item not found" });
