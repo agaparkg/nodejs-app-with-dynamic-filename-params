@@ -3,10 +3,17 @@ import { v4 as uuidv4 } from "uuid";
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync, readdirSync, unlink } from "node:fs";
 
-// This method helps to see if any file exists or not. It returns a boolean: true/false
-// import { existsSync } from "node:fs";
+// existsSync: used to see if any file exists or not. It returns a boolean: true/false
+// Usage: existsSync("./data/items.json");
+
+// readdirSync: used to synchronously read the contents of a given directory.
+// Usage: readdirSync("./data/");
+
+// unlink: used to remove a file or symbolic link from the filesystem..
 // Usage:
-// existsSync("./data/items.json");
+// Callback example: unlink( path, callback )
+// Promise example: await unlink( path )
+// unlink("./data/items.json", (err) => {if (err) throw err; res.status(200).json("Done")});
 
 // This function was written to change the IDs of the existing products in
 // ./data/products.json file. Initially all products had IDs as of 1,2,3...,
